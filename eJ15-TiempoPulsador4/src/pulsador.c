@@ -103,6 +103,7 @@ void actualizarPulsador()
             if( !gpio_get_level( pulsadorA.tecla ) ){
                 pulsadorA.estado = BAJO;
                 botonLiberado();
+                crearTareaDestello();
             }
             else{
                 pulsadorA.estado = ALTO;
@@ -126,7 +127,7 @@ static void botonPresionado()
 /* accion de el evento de tecla liberada */
 static void botonLiberado()
 {
-    TickType_t conteoTicksActuales =   xTaskGetTickCount();   //Medimos el tiempo en ticks desde que inició el scheduler
+    TickType_t conteoTicksActuales = xTaskGetTickCount();   //Medimos el tiempo en ticks desde que inició el scheduler
     gpio_set_level( SALIDA_PRUEBA, 0 );         //para tener una referencia en el debug
     pulsadorA.tiempoAlto    = conteoTicksActuales;
     pulsadorA.diferenciaTiempo  = pulsadorA.tiempoAlto - pulsadorA.tiempoBajo; //Da el tiempo que el pulsador estuvo en estado alto

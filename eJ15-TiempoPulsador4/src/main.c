@@ -13,6 +13,7 @@
 #define PROCESADORB 1
 
 void tareaDestello( void* taskParmPtr ); //Prototipo de la función de la tarea
+void crearTareaDestello(void);
 
 void app_main()
 {
@@ -21,22 +22,7 @@ void app_main()
     // En caso contrario devuelve pdFAIL.
     inicializarPulsador();
 
-    BaseType_t res = xTaskCreatePinnedToCore(
-    	tareaDestello,                     	// Funcion de la tarea a ejecutar
-        "tareaDestello",   	                // Nombre de la tarea como String amigable para el usuario
-        configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
-        NULL,                          	// Parametros de tarea
-        tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
-        NULL,                          		// Puntero a la tarea creada en el sistema
-        PROCESADORA
-    );
-
-    // Gestion de errores
-	if(res == pdFAIL)
-	{
-		printf( "Error al crear la tarea.\r\n" );
-		while(true);					// si no pudo crear la tarea queda en un bucle infinito
-	}
+   
 }
 
 // Implementacion de funcion de la tarea
@@ -59,6 +45,10 @@ void tareaDestello( void* taskParmPtr )
             vTaskDelay( dif );
             gpio_set_level( SALIDA1, 0 );
             borrarDiferencia();
+            if( xHandle2 != NULL )
+            {
+            vTaskDelete( xHandle2 );
+            }
         }
         else
         {
@@ -66,4 +56,31 @@ void tareaDestello( void* taskParmPtr )
         }
 
     }
+}
+
+void crearTareaDestello(void){
+
+    
+ BaseType_t res = xTaskCreatePinnedToCore(
+    	tareaDestello,                     	// Funcion de la tarea a ejecutar
+        "tareaDestello",   	                // Nombre de la tarea como String amigable para el usuario
+        configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
+        NULL,                          	// Parametros de tarea
+        tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
+        &xHandle2,                          		// Puntero a la tarea creada en el sistema
+        PROCESADORA
+    );
+
+    // Gestion de errores
+	if(res == pdFAIL)
+	{
+		printf( "Error al crear la tarea.\r\n" );
+		while(true);					// si no pudo crear la tarea queda en un bucle infinito
+	}
+
+
+
+
+
+
 }
