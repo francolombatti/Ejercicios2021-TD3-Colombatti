@@ -17,6 +17,7 @@ void crearTareaDestello(void);
 
 void app_main()
 {
+    TaskHandle_t xHandle1 = NULL; 
     // Crear tarea en freeRTOS
     // Devuelve pdPASS si la tarea fue creada y agregada a la lista ready
     // En caso contrario devuelve pdFAIL.
@@ -45,9 +46,9 @@ void tareaDestello( void* taskParmPtr )
             vTaskDelay( dif );
             gpio_set_level( SALIDA1, 0 );
             borrarDiferencia();
-            if( xHandle2 != NULL )
+            if( xHandle1 != NULL )
             {
-            vTaskDelete( xHandle2 );
+            vTaskDelete( xHandle1 );
             }
         }
         else
@@ -67,7 +68,7 @@ void crearTareaDestello(void){
         configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
         NULL,                          	// Parametros de tarea
         tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
-        &xHandle2,                          		// Puntero a la tarea creada en el sistema
+        &xHandle1,                          		// Puntero a la tarea creada en el sistema
         PROCESADORA
     );
 
@@ -77,10 +78,5 @@ void crearTareaDestello(void){
 		printf( "Error al crear la tarea.\r\n" );
 		while(true);					// si no pudo crear la tarea queda en un bucle infinito
 	}
-
-
-
-
-
 
 }
