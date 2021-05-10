@@ -19,7 +19,6 @@ void tareaPulsador( void* taskParmPtr );
 
 /*==================[Variables]==============================*/
 gpio_int_type_t pulsadorPines[1] = { GPIO_NUM_18 };
-
 pulsadorInfo pulsadorA;
 
 /*==================[Implementaciones]=================================*/
@@ -75,7 +74,7 @@ static void errorPulsador( void )
 }
 
 // pulsador_ Update State Function
-void actualizarPulsador()
+int actualizarPulsador()
 {
     switch( pulsadorA.estado )
     {
@@ -105,7 +104,6 @@ void actualizarPulsador()
             if( !gpio_get_level( pulsadorA.tecla ) ){
                 pulsadorA.estado = BAJO;
                 botonLiberado();
-                crearTareaDestello();
             }
             else{
                 pulsadorA.estado = ALTO;
@@ -116,6 +114,7 @@ void actualizarPulsador()
             errorPulsador();
             break;
     }
+    return pulsadorA.estado;
 }
 
 /* accion de el evento de tecla pulsada */
@@ -141,5 +140,8 @@ void tareaPulsador( void* taskParmPtr )
     {
         actualizarPulsador();
         vTaskDelay( T_REBOTE );
+        if(actualizarPulsador()==DESCENDENTE){
+                crearTareaDestello();
+        }
     }
 }

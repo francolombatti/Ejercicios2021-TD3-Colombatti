@@ -28,5 +28,6 @@ typedef struct
 void inicializarPulsador( void );
 TickType_t obtenerDiferencia( void);
 void borrarDiferencia( void );
+int actualizarPulsador();
 
 #endif

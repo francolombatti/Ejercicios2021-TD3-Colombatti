@@ -15,20 +15,17 @@
 void tareaDestello( void* taskParmPtr ); //Prototipo de la función de la tarea
 void crearTareaDestello(void);
 
+TaskHandle_t xHandle1 = NULL; 
+
 void app_main()
 {
-    TaskHandle_t xHandle1 = NULL; 
-    // Crear tarea en freeRTOS
-    // Devuelve pdPASS si la tarea fue creada y agregada a la lista ready
-    // En caso contrario devuelve pdFAIL.
     inicializarPulsador();
-
-   
 }
 
 // Implementacion de funcion de la tarea
 void tareaDestello( void* taskParmPtr )
-{
+{   
+    printf( "Se ejecuto la tarea destello\n" );
     // ---------- Congiguraciones ------------------------------
     gpio_pad_select_gpio(SALIDA1);
     gpio_set_direction(SALIDA1, GPIO_MODE_OUTPUT);
@@ -46,32 +43,28 @@ void tareaDestello( void* taskParmPtr )
             vTaskDelay( dif );
             gpio_set_level( SALIDA1, 0 );
             borrarDiferencia();
-            if( xHandle1 != NULL )
-            {
+            printf("tarea eliminada\n");
             vTaskDelete( xHandle1 );
-            }
         }
         else
         {
             vTaskDelay( T_ESPERA );
         }
-
     }
 }
 
 void crearTareaDestello(void){
-
-    
+     printf( "Se creo la tarea destello\n" );
  BaseType_t res = xTaskCreatePinnedToCore(
     	tareaDestello,                     	// Funcion de la tarea a ejecutar
         "tareaDestello",   	                // Nombre de la tarea como String amigable para el usuario
-        configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
+        configMINIMAL_STACK_SIZE*2, 		// Cantidad de stack de la tarea
         NULL,                          	// Parametros de tarea
         tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
-        &xHandle1,                          		// Puntero a la tarea creada en el sistema
+        xHandle1,                          		// Puntero a la tarea creada en el sistema
         PROCESADORA
     );
-
+   
     // Gestion de errores
 	if(res == pdFAIL)
 	{
