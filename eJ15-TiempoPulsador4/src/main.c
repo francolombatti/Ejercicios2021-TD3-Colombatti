@@ -50,6 +50,7 @@ void tareaDestello( void* taskParmPtr )
         {
             vTaskDelay( T_ESPERA );
         }
+
     }
 }
 
