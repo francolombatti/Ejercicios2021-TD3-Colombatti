@@ -23,7 +23,7 @@ void tareaPulsador( void* taskParmPtr );
 gpio_int_type_t pulsador[2] = { GPIO_NUM_27, GPIO_NUM_14 };
 pulsadorInfo pulsadorA;
 pulsadorInfo pulsadorB;
-int contador = 1000;
+int contador = 100;
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 /*==================[Implementaciones]=================================*/

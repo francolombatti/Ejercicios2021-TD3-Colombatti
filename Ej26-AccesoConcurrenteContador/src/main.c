@@ -8,13 +8,11 @@
 
 
 
-#define PERIODO_MS                    1000
-#define PERIODO          pdMS_TO_TICKS(PERIODO_MS)
-
 gpio_int_type_t led[2] = { GPIO_NUM_25, GPIO_NUM_26 };
 extern int contador;
+extern portMUX_TYPE mux;
 void tareaDestello( void* taskParmPtr ); //Prototipo de la función de la tarea
-
+void tareaC( void* taskParmPtr ); //Prototipo de la función de la tarea c
 void app_main()
 {
     // Crear tarea en freeRTOS
@@ -27,13 +25,30 @@ void app_main()
         "tareaDestello",   	                // Nombre de la tarea como String amigable para el usuario
         configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
         NULL,                          	// Parametros de tarea
-        tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
+        tskIDLE_PRIORITY+2,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
         NULL,                          		// Puntero a la tarea creada en el sistema
         PROCESADORA
     );
 
     // Gestion de errores
 	if(res == pdFAIL)
+	{
+		printf( "Error al crear la tarea.\r\n" );
+		while(true);					// si no pudo crear la tarea queda en un bucle infinito
+	}
+
+    BaseType_t resa = xTaskCreatePinnedToCore(
+    	tareaC,                     	// Funcion de la tarea a ejecutar
+        "tareaC",   	                // Nombre de la tarea como String amigable para el usuario
+        configMINIMAL_STACK_SIZE, 		// Cantidad de stack de la tarea
+        NULL,                          	// Parametros de tarea
+        tskIDLE_PRIORITY+1,         	// Prioridad de la tarea -> Queremos que este un nivel encima de IDLE
+        NULL,                          		// Puntero a la tarea creada en el sistema
+        PROCESADORA
+    );
+
+    // Gestion de errores
+	if(resa == pdFAIL)
 	{
 		printf( "Error al crear la tarea.\r\n" );
 		while(true);					// si no pudo crear la tarea queda en un bucle infinito
@@ -46,10 +61,7 @@ void tareaDestello( void* taskParmPtr )
     // ---------- Configuraciones ------------------------------
     gpio_pad_select_gpio(led[0]);
     gpio_set_direction(led[0], GPIO_MODE_OUTPUT);
-    gpio_pad_select_gpio(led[1]);
-    gpio_set_direction(led[1], GPIO_MODE_OUTPUT);
-
-    
+        
     TickType_t xPeriodicity = pdMS_TO_TICKS(contador/2); 
     //TickType_t xLastWakeTime = xTaskGetTickCount();
     // ---------- Bucle infinito --------------------------
@@ -62,6 +74,36 @@ void tareaDestello( void* taskParmPtr )
             vTaskDelay( xPeriodicity);
 
            // vTaskDelayUntil( &xLastWakeTime, xPeriodicity );
+
+    }
+}
+//Tarea C: Destella otro led conun periodo de 2 s y un tiempo de encendido de 2xcontador ms.
+//En cada ciclo deberá decrementar el contador en 100.
+void tareaC( void* taskParmPtr )
+{
+    // ---------- Configuraciones ------------------------------
+    gpio_pad_select_gpio(led[1]);
+    gpio_set_direction(led[1], GPIO_MODE_OUTPUT);
+
+    
+    TickType_t xPeriodicity1 = pdMS_TO_TICKS(contador*2); 
+    TickType_t xPeriodicityC = pdMS_TO_TICKS(2000); 
+    TickType_t xLastWakeTimeC = xTaskGetTickCount();
+    // ---------- Bucle infinito --------------------------
+    while( true )
+    {
+            xPeriodicity1 = pdMS_TO_TICKS(contador*2); 
+            gpio_set_level(led[1], 1 );
+            vTaskDelay( xPeriodicity1);
+            gpio_set_level(led[1], 0 );
+            portENTER_CRITICAL(&mux);
+                if(contador==100){}
+                    else{
+                    contador = contador - 100;
+                    }
+            portEXIT_CRITICAL(&mux);
+
+           vTaskDelayUntil( &xLastWakeTimeC, xPeriodicityC );
 
     }
 }
