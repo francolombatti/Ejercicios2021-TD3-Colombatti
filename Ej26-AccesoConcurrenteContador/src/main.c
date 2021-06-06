@@ -85,14 +85,17 @@ void tareaC( void* taskParmPtr )
     gpio_pad_select_gpio(led[1]);
     gpio_set_direction(led[1], GPIO_MODE_OUTPUT);
 
-    
+    portENTER_CRITICAL(&mux);
     TickType_t xPeriodicity1 = pdMS_TO_TICKS(contador*2); 
+    portEXIT_CRITICAL(&mux);
     TickType_t xPeriodicityC = pdMS_TO_TICKS(2000); 
     TickType_t xLastWakeTimeC = xTaskGetTickCount();
     // ---------- Bucle infinito --------------------------
     while( true )
     {
+            portENTER_CRITICAL(&mux);
             xPeriodicity1 = pdMS_TO_TICKS(contador*2); 
+            portEXIT_CRITICAL(&mux);
             gpio_set_level(led[1], 1 );
             vTaskDelay( xPeriodicity1);
             gpio_set_level(led[1], 0 );
