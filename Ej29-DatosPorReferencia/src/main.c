@@ -55,8 +55,8 @@ void tareaDestello( void* taskParmPtr )
 
     TickType_t xPeriodicity =  PERIODO;
 	TickType_t xLastWakeTime = xTaskGetTickCount();
-   
-    uint8_t indi;
+    uint8_t indi= 2; //inicializo en un valor distinto al indice para demostrar que funciona igual
+    
     TickType_t dif = 0;
     
     // ---------- Bucle infinito --------------------------
